@@ -1,0 +1,13 @@
+@(tarea: Tarea)
+
+<li data-task-id="@tarea.id">
+                                <h4>@tarea.titulo</h4>
+                                @if(tarea.fechaEntrega != null) {
+                                    <time datetime="@tarea.fechaEntrega">
+                                        @tarea.fechaEntrega.format("MMM dd yyyy")</time>
+                                }
+
+                                @if(tarea.asignado != null && tarea.asignado.username != null) {
+                                    <span class="assignedTo">@tarea.asignado.nombre</span>
+                                }
+                            </li>

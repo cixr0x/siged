@@ -1,17 +1,39 @@
-@(message: String)
+@(currentPage: String, peticiones: List[Peticion], tareas: List[Tarea], user: User)
 
-@main("Welcome to Play") {
-<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-	<script type="text/javascript" src='@routes.Assets.at("js/index.js")'></script>
-<!--
 
-//-->
-</script>
-	<ul id ="persons"></ul>
-    <form action="@routes.Application.addPerson()" method="post">
-    	<input type="text" name="name"/>
-    	<input type="text" name="other"/>
-    	<button>Add Person</button>
-    </form>
-
-}
+<html>
+    <head>
+        <title>Testo</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-1.7.1.js")"></script>
+    </head>
+    <body style=" padding-top: 51px;">
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+    	<a href="@routes.Application.index" class="navbar-brand" id="logo"><span>SIGED</span></a>
+    	
+    	<ul class="nav navbar-nav navbar-right" id="user">
+        <li><a>@user.nombre <span>(@user.username)</span></a></li>
+        <li>
+            <a href="@routes.Application.logout()">Logout</a>
+        </li>
+    	</ul>
+      </div>
+    </div>
+        <div class="container">
+			<div class="row">
+			<div class="col-xs-3">
+            @sidebar(user)
+        	</div>
+        <div class="col-xs-9">
+        	@if(currentPage=="usuarios"){
+        		@views.html.admin.usuarios()
+        	} else{
+           		@main(peticiones, user, tareas)
+           	} 
+        </div>
+        </div>
+        </div>
+    </body>
+  </html>
+  

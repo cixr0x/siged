@@ -1,15 +1,25 @@
-@(title: String)(content: Html)
+@(peticiones: List[Peticion], user: User, tareas: List[Tarea])
 
-<!DOCTYPE html>
+<header>
+        <hgroup>
+            <h1>Dashboard</h1>
+            <h2>Tasks over all projects</h2>
+        </hgroup>
+    </header>
 
-<html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-        <script src="@routes.Assets.at("javascripts/hello.js")" type="text/javascript"></script>
-    </head>
-    <body>
-        @content
-    </body>
-</html>
+    <article  class="tasks">
+        @tareas.groupBy(_.peticion).map {
+            case (peticion, tarea) => {
+                <div class="folder" data-folder-id="@peticion.id">
+                    <header>
+                        <h3>@peticion.titulo</h3>
+                    </header>
+                    <ul class="list">
+                        @tareas.map { tarea =>
+                            @views.html.tareas.item(tarea)
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    </article>
