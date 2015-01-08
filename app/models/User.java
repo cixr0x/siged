@@ -9,6 +9,8 @@ import javax.persistence.ManyToMany;
 import play.db.ebean.Model;
 import play.db.ebean.Model.Finder;
 
+
+
 @Entity
 public class User extends Model {
 
@@ -21,6 +23,11 @@ public class User extends Model {
 	@ManyToMany
 	public List<Rol> roles;
 	
+	
+	public User()
+	{
+		
+	}
 	public User(String username, String nombre, String apellido, String password, String correo){
 		this.username=username;
 		this.nombre=nombre;

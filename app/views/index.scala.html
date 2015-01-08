@@ -1,4 +1,4 @@
-@(currentPage: String, peticiones: List[Peticion], tareas: List[Tarea], user: User)
+@(content: Html, user: User)
 
 
 <html>
@@ -26,11 +26,7 @@
             @sidebar(user)
         	</div>
         <div class="col-xs-9">
-        	@if(currentPage=="usuarios"){
-        		@views.html.admin.usuarios()
-        	} else{
-           		@main(peticiones, user, tareas)
-           	} 
+        	@content
         </div>
         </div>
         </div>

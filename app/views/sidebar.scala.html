@@ -1,9 +1,10 @@
 @(user: User)
-
-
+<div>
+<ul class="nav nav-pills nav-stacked">
 @if(user.tieneRol("admin")){
-<h4 ><a href="#/">Admin</a></h4>
-<ul>
+
 <li><a href="#/">Usuarios</a></li>
-</ul>
+
 }
+</ul>
+</div>

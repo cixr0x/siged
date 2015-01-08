@@ -11,22 +11,33 @@ import play.*;
 import play.data.Form;
 import play.data.Form.Field;
 import play.db.ebean.Model;
+import play.db.ebean.Transactional;
 import play.mvc.*;
+import play.twirl.api.Html;
 import views.html.*;
+import views.html.admin.usuarios; 
 import static play.libs.Json.toJson;
 
 public class Application extends Controller {
 
 	@Security.Authenticated(Secured.class)
+	@Transactional
     public static Result index() {
+        return usuarios();
+        
+    }
+	
+	@Transactional
+    public static Result main(Html content) {
         return ok(index.render(
-        		session("currentPage"),
-        		Peticion.find.all(), 
-        		Tarea.find.all(), 
+        		content, 
         		User.find.byId(request().username())
         		));
+        
     }
     
+    
+	
     public static Result addPerson(){
     	Form<Person> f  = Form.form(Person.class).bindFromRequest();
     	Person person =f.get();
@@ -37,14 +48,27 @@ public class Application extends Controller {
     	return redirect(routes.Application.index());
     }
     
+    @Security.Authenticated(Secured.class)
     public static Result crearUsuario() {
-    	Form<User> userForm = Form.form(User.class).bindFromRequest();
-    	User user = userForm.get();
+    	Form<User>  userForm = Form.form(User.class).bindFromRequest();
+    	//if (userForm.hasErrors()) {
+    	//	  String errors = userForm.errorsAsJson().textValue();
+    	//	  return badRequest(userForm.errorsAsJson());
+    	//	}
+    	User user = new User();
+    	user.roles = userForm.get().roles;
     	user.save();
+    	user.saveManyToManyAssociations("roles");
     	
     	return ok();
     }
     
+   @Transactional
+    public static Result getUsers(){
+    	List<User> users = new Model.Finder(String.class, User.class).all();
+    	return ok(toJson(users));
+    	
+    }
     public static Result getPersons(){
     	List<Person> persons = new Model.Finder(String.class, Person.class).all();
     	return ok(toJson(persons));
@@ -89,7 +113,8 @@ public class Application extends Controller {
     @Security.Authenticated(Secured.class)
     public static Result usuarios(){
     	session("currentPage", "usuarios");
-    	return index();
+    	Html mainContent = usuarios.render(Rol.find.all());
+    	return main(mainContent);
     }
     
     

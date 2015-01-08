@@ -1,68 +1,109 @@
-@( users:List[User] = User.find.all())
+@(roles:List[Rol])
 
 <script>
 	function crearUsuario()
 	{
-		$.post( "@routes.Application.crearUsuario()", { 
+		$.post( "@routes.Application.crearUsuario()",  { 
 				username:$("#username").val(),
+				password:$("#password").val(),
+				roles:$("#roles").val(),
 				nombre:$("#nombre").val(),
 				apellido:$("#apellido").val(),
 				correo:$("#correo").val()				
-		} );
+		}, function a(){toggleNewUserForm(); getUsers();} );
 		
 	}
+	function getUsers()
+	{
+		$.get( "@routes.Application.getUsers()", function showUsers1(data) { showUsers(data);} );		
+	}
+	
+	function showUsers(data){
+		//alert(data[0].username);
+		var tableData= "<tr>"+
+		    "<th>Username</th>"+
+		    "<th>Nombre</th> "+
+		    "<th>Correo</th>"+
+		    "<th>Roles</th>"+
+		    "<th></th>"+
+		  "</tr>";
+		for (var d in data){
+			
+			tableData+=	"<tr>"+
+							"<td>"+data[d].username+"</td>"+
+							"<td>"+data[d].nombre +" "+ data[d].apellido+"</td>"+
+							"<td>"+data[d].correo+"</td>"+
+							"<td>";
+			for (var r in data[d].roles){
+				tableData+=data[d].roles[r].nombre+" ";
+			}
+			tableData+="<td><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>"+
+			"</tr>";
+			
+		}
+		$("#userTable > tbody:last").html(tableData);
+	}
+	function toggleNewUserForm(){
+		$("#newUserForm").slideToggle();
+		
+	}
+	getUsers();
+	
 </script>
 <h4>Usuarios</h4>
-<button class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear usuario</button>
+<button class="btn btn-default btn-sm" onclick="toggleNewUserForm()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear usuario</button>
 
 
 <div class="row">
+<div id="newUserForm" class="well bs-component" style="display:none;">
+<legend>Nuevo usuario</legend>	
 <div class="col-xs-6">
- <div class="form-group">
+ 	<div class="form-group">
       <label for="username">Username:</label>
       <input type="text" class="form-control" id="username" placeholder="Username">
     </div>
-     <div class="form-group">
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="text" class="form-control" id="password" placeholder="Password">
+    </div>
+    <div class="form-group">
+      <label for="password">Confirmar Password:</label>
+      <input type="password" class="form-control" id="password1" placeholder="Password">
+    </div>
+
+	<div class="form-group">
+      <label for="Rol">Rol:</label>
+      <select multiple type="text" class="form-control" id="roles">
+      @roles.map { rol =>
+      	<option value="@rol.codigo"> @rol.nombre </option>
+      }
+      </select>
+	</div>
+   <button class="btn btn-default btn-sm text-right" onclick="crearUsuario()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear </button> 
+</div>   
+ <div class="col-xs-6">
+ 	<div class="form-group">
       <label for="nombre">Nombre:</label>
       <input type="text" class="form-control" id="nombre" placeholder="Nombre">
-	</div>    
+	</div> 
+	<div class="form-group">
+      <label for="apellido">Apellido:</label>
+      <input type="text" class="form-control" id="apellido" placeholder="Apellido">
     </div>
-   <div class="col-xs-6">
      <div class="form-group">
       <label for="correo">Correo:</label>
       <input type="email" class="form-control" id="correo" placeholder="correo@@sitio.com">
     </div>
-     <div class="form-group">
-      <label for="apellido">Apellido:</label>
-      <input type="text" class="form-control" id="apellido" placeholder="Apellido">
-    </div>
-    </div>
-    </div>
-    <button class="btn btn-default btn-sm text-right" onclick="crearUsuario()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear </button>
+     
 
-<table class="table table-striped table-hover" >
-  <tr>
-    <th  data-sortable="true">Username</th>
-    <th>Nombre</th> 
-    <th>Correo</th>
-    <th>Roles</th>
-    <th></th>
-  </tr>
-  
-    @users.map { u =>
-    <tr>
-    <td>@u.username</td>
-  	<td>@u.nombre @u.apellido</td>
-  	<td>@u.correo</td>
-  	<td>
-  		@u.roles.map { r =>
-  			@r.nombre&nbsp;
-  		}
-  	</td>
-  	<td><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></td>
-  	</tr>
-	} 
-  
+ </div>
+
+</div><!-- container -->
+</div><!-- row -->
+    
+
+<table class="table table-striped table-hover" id="userTable" >
+ <td><img src="@routes.Assets.at("images/loading.gif")" /></td>
 </table>
 
 
