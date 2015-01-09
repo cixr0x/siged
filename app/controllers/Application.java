@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.Collection;
 import java.util.List;
 
 import models.Person;
@@ -56,7 +57,18 @@ public class Application extends Controller {
     	//	  return badRequest(userForm.errorsAsJson());
     	//	}
     	User user = new User();
-    	user.roles = userForm.get().roles;
+    	user.apellido = userForm.data().get("apellido");
+    	user.correo = userForm.data().get("correo");
+    	user.nombre = userForm.data().get("nombre");
+    	user.password = userForm.data().get("password");
+    	user.username = userForm.data().get("username");
+    	for (String key : userForm.data().keySet()){
+    		if (key.contains("roles")){
+    			user.roles.add(Rol.find.byId(userForm.data().get(key)));
+    		}
+    	}
+    		
+    	//user.roles = userForm.data().  .get().roles;
     	user.save();
     	user.saveManyToManyAssociations("roles");
     	

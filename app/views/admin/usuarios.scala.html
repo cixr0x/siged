@@ -6,7 +6,7 @@
 		$.post( "@routes.Application.crearUsuario()",  { 
 				username:$("#username").val(),
 				password:$("#password").val(),
-				roles:$("#roles").val(),
+				"roles[]":$("#roles").val(),
 				nombre:$("#nombre").val(),
 				apellido:$("#apellido").val(),
 				correo:$("#correo").val()				
