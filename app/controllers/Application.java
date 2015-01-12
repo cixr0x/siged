@@ -3,10 +3,9 @@ package controllers;
 import java.util.Collection;
 import java.util.List;
 
-import models.Person;
+
 import models.Peticion;
 import models.Rol;
-import models.Tarea;
 import models.User;
 import play.*;
 import play.data.Form;
@@ -17,37 +16,33 @@ import play.mvc.*;
 import play.twirl.api.Html;
 import views.html.*;
 import views.html.admin.usuarios; 
+import views.html.peticiones.*; 
 import static play.libs.Json.toJson;
 
+@Transactional
 public class Application extends Controller {
 
 	@Security.Authenticated(Secured.class)
-	@Transactional
     public static Result index() {
+		String user =session("username");
+		if (user==null)
+			login();
         return usuarios();
         
     }
 	
-	@Transactional
+	@Security.Authenticated(Secured.class)
     public static Result main(Html content) {
         return ok(index.render(
         		content, 
-        		User.find.byId(request().username())
+        		User.find.byId(session("username"))
         		));
         
     }
     
     
 	
-    public static Result addPerson(){
-    	Form<Person> f  = Form.form(Person.class).bindFromRequest();
-    	Person person =f.get();
-    	//person.name= f.field("name").value();
-    	//person.other= f.field("other").value(); 
-    	
-    	person.save();
-    	return redirect(routes.Application.index());
-    }
+
     
     @Security.Authenticated(Secured.class)
     public static Result crearUsuario() {
@@ -75,17 +70,42 @@ public class Application extends Controller {
     	return ok();
     }
     
-   @Transactional
+    @Security.Authenticated(Secured.class)
+    public static Result editarUsuario() {
+    	Form<User>  userForm = Form.form(User.class).bindFromRequest();
+    	//if (userForm.hasErrors()) {
+    	//	  String errors = userForm.errorsAsJson().textValue();
+    	//	  return badRequest(userForm.errorsAsJson());
+    	//	}
+    	User user = User.find.byId(userForm.data().get("username"));
+    	user.apellido = userForm.data().get("apellido");
+    	user.correo = userForm.data().get("correo");
+    	user.nombre = userForm.data().get("nombre");
+    	user.roles.clear();
+    	for (String key : userForm.data().keySet()){
+    		if (key.contains("roles")){
+    			user.roles.add(Rol.find.byId(userForm.data().get(key)));
+    		}
+    	}
+    		
+    	//user.roles = userForm.data().  .get().roles;
+    	user.save();
+    	user.saveManyToManyAssociations("roles");
+    	
+    	return ok();
+    }
+    
+   @Security.Authenticated(Secured.class)
     public static Result getUsers(){
     	List<User> users = new Model.Finder(String.class, User.class).all();
+    	for (User u : users){
+    		u.password="";
+    	}
+    		
     	return ok(toJson(users));
     	
     }
-    public static Result getPersons(){
-    	List<Person> persons = new Model.Finder(String.class, Person.class).all();
-    	return ok(toJson(persons));
-    }
-    
+
     public static Result login(){
     	return ok(login.render(Form.form(Login.class)));
     }
@@ -129,6 +149,11 @@ public class Application extends Controller {
     	return main(mainContent);
     }
     
+    @Security.Authenticated(Secured.class)
+    public static Result peticiones(){
+    	Html mainContent = peticiones.render();
+    	return main(mainContent);
+    }
     
     
     

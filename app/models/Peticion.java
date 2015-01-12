@@ -1,10 +1,9 @@
 package models;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 import play.db.ebean.Model;
 
@@ -15,25 +14,28 @@ public class Peticion extends Model {
 	public String titulo;
 	public String descripcion;
 	public String fase;
-	@ManyToMany
-	public List<User> participantes;
+	@ManyToOne
+	public User creador;
+	@ManyToOne
+	public User responsable;
+	public Date fechacreado;
+	public Date fechaasignado;
+	public Date fechacerrado;
+	@OneToMany
+	public List<Actualizacion> proceso;
 
 	public Peticion(String titulo, String descripcion, User usuario){
 		this.titulo=titulo;
 		this.descripcion=descripcion;
-		this.participantes.add(usuario);
+		this.creador = usuario;
+		this.fechacreado=new Date();
+		//this.participantes.add(usuario);
 		
 	}
 	
 	public static Model.Finder<Long, Peticion> find = new Model.Finder(Long.class, Peticion.class);
 	
-	public static Peticion create(String titulo, String descripcion, String usuario){
-		Peticion peticion = new Peticion(titulo, descripcion, User.find.ref(usuario));
-		peticion.save();
-		peticion.saveManyToManyAssociations("participantes");
-		return peticion;
-	}
-	
+
 	public static List<Peticion> peticionesPorUsario(String usuario)
 	{
 		return find.where().eq("participantes.username", usuario).findList();

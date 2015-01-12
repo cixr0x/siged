@@ -2,9 +2,10 @@
 <div>
 <ul class="nav nav-pills nav-stacked">
 @if(user.tieneRol("admin")){
-
-<li><a href="#/">Usuarios</a></li>
-
+	<li><a href="@routes.Application.usuarios()">Usuarios</a></li>
+}
+@if(user.tieneRol("captura")){
+	<li><a href="@routes.Application.peticiones()">Mis Peticiones</a></li>
 }
 </ul>
 </div>

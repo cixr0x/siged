@@ -13,23 +13,57 @@
 		}, function a(){toggleNewUserForm(); getUsers();} );
 		
 	}
+	
+	function editarUsuario()
+	{
+		$.post( "@routes.Application.editarUsuario()",  { 
+				username:$("#edit_username").val(),
+				"roles[]":$("#edit_roles").val(),
+				nombre:$("#edit_nombre").val(),
+				apellido:$("#edit_apellido").val(),
+				correo:$("#edit_correo").val()				
+		}, function a(){toggleEditUserForm(); getUsers();} );
+		
+	}
+	
+	function mostrarEditar(username)
+	{
+		$("#editUserForm").slideDown();
+		$("#edit_username").val(userInfo[username].username);
+		$("#edit_nombre").val(userInfo[username].nombre);
+		$("#edit_apellido").val(userInfo[username].apellido);
+		$("#edit_correo").val(userInfo[username].correo);
+		console.log(userInfo[username].roles);
+		var roles = [];
+		for (r in userInfo[username].roles){
+			roles.push(userInfo[username].roles[r].codigo);
+		}
+		console.log(roles);
+		$("#edit_roles").val(roles);
+		
+		
+	}
+	
 	function getUsers()
 	{
 		$.get( "@routes.Application.getUsers()", function showUsers1(data) { showUsers(data);} );		
 	}
 	
+	var userInfo = [];
 	function showUsers(data){
 		//alert(data[0].username);
-		var tableData= "<tr>"+
+		var tableData= "<thead><tr>"+
 		    "<th>Username</th>"+
 		    "<th>Nombre</th> "+
 		    "<th>Correo</th>"+
 		    "<th>Roles</th>"+
 		    "<th></th>"+
-		  "</tr>";
+		  "</tr></thead>";
+		  
+		
 		for (var d in data){
-			
-			tableData+=	"<tr>"+
+			userInfo[data[d].username] = data[d];
+			tableData+=	"<tr id=\"edit_"+data[d].username+"\">"+
 							"<td>"+data[d].username+"</td>"+
 							"<td>"+data[d].nombre +" "+ data[d].apellido+"</td>"+
 							"<td>"+data[d].correo+"</td>"+
@@ -37,23 +71,29 @@
 			for (var r in data[d].roles){
 				tableData+=data[d].roles[r].nombre+" ";
 			}
-			tableData+="<td><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>"+
+			tableData+="<td><button class=\"btn btn-default btn-sm\" onclick=\"mostrarEditar('"+data[d].username+"')\" type='button'><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>"+
 			"</tr>";
 			
 		}
-		$("#userTable > tbody:last").html(tableData);
+		$("#userTable").html(tableData);
+		
 	}
 	function toggleNewUserForm(){
 		$("#newUserForm").slideToggle();
 		
 	}
+	function toggleEditUserForm(){
+		$("#editUserForm").slideToggle();
+		
+	}
 	getUsers();
 	
 </script>
-<h4>Usuarios</h4>
-<button class="btn btn-default btn-sm" onclick="toggleNewUserForm()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear usuario</button>
+<div class="page-header">
+<h1>Usuarios</h1>
 
-
+</div>
+<button class="btn btn-primary" onclick="toggleNewUserForm()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear usuario</button>
 <div class="row">
 <div id="newUserForm" class="well bs-component" style="display:none;">
 <legend>Nuevo usuario</legend>	
@@ -79,7 +119,8 @@
       }
       </select>
 	</div>
-   <button class="btn btn-default btn-sm text-right" onclick="crearUsuario()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Crear </button> 
+	<button class="btn btn-default" onclick="toggleNewUserForm()"> Cancelar </button>
+   <button class="btn btn-primary" onclick="crearUsuario()"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Guardar </button> 
 </div>   
  <div class="col-xs-6">
  	<div class="form-group">
@@ -98,7 +139,45 @@
 
  </div>
 
-</div><!-- container -->
+</div><!-- newUserForm -->
+
+<div id="editUserForm" class="well bs-component" style="display:none;">
+<legend>Editar usuario</legend>	
+<div class="col-xs-6">
+ 	<div class="form-group">
+      <label for="username">Username:</label>
+      <input disabled type="text" class="form-control" id="edit_username"  placeholder="Username">
+    </div>
+    <div class="form-group">
+      <label for="nombre">Nombre:</label>
+      <input type="text" class="form-control" id="edit_nombre" placeholder="Nombre">
+	</div> 
+	<div class="form-group">
+      <label for="apellido">Apellido:</label>
+      <input type="text" class="form-control" id="edit_apellido" placeholder="Apellido">
+    </div>
+	<button class="btn btn-default" onclick="toggleEditUserForm()"> Cancelar </button>
+   <button class="btn btn-primary" onclick="editarUsuario()"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Guardar </button> 
+</div>   
+ <div class="col-xs-6">
+ 	
+     <div class="form-group">
+      <label for="correo">Correo:</label>
+      <input type="email" class="form-control" id="edit_correo" placeholder="correo@@sitio.com">
+    </div>
+    <div class="form-group">
+      <label for="Rol">Rol:</label>
+      <select multiple type="text" class="form-control" id="edit_roles">
+      @roles.map { rol =>
+      	<option value="@rol.codigo"> @rol.nombre </option>
+      }
+      </select>
+	</div>
+     
+
+ </div>
+
+</div><!-- newUserForm -->
 </div><!-- row -->
     
 

@@ -1,4 +1,4 @@
-@(peticiones: List[Peticion], user: User, tareas: List[Tarea])
+@(peticiones: List[Peticion], user: User)
 
 <header>
         <hgroup>
@@ -8,16 +8,16 @@
     </header>
 
     <article  class="tasks">
-        @tareas.groupBy(_.peticion).map {
-            case (peticion, tarea) => {
-                <div class="folder" data-folder-id="@peticion.id">
+        //tareas.groupBy(_.peticion).map {
+            //case (peticion, tarea) => {
+                <div class="folder" data-folder-id="peticion.id">
                     <header>
-                        <h3>@peticion.titulo</h3>
+                        <h3>//peticion.titulo</h3>
                     </header>
                     <ul class="list">
-                        @tareas.map { tarea =>
-                            @views.html.tareas.item(tarea)
-                        }
+                        //tareas.map { tarea =>
+                          //  views.html.tareas.item(tarea)
+                        //}
                     </ul>
                 </div>
             }
