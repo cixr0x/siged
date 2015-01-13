@@ -21,6 +21,7 @@ public class Peticion extends Model {
 	public Date fechacreado;
 	public Date fechaasignado;
 	public Date fechacerrado;
+	public String prioridad;
 	@OneToMany
 	public List<Actualizacion> proceso;
 
@@ -32,6 +33,8 @@ public class Peticion extends Model {
 		//this.participantes.add(usuario);
 		
 	}
+	
+	public Peticion(){};
 	
 	public static Model.Finder<Long, Peticion> find = new Model.Finder(Long.class, Peticion.class);
 	

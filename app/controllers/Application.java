@@ -1,8 +1,10 @@
 package controllers;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
+import com.avaje.ebean.Ebean;
 
 import models.Peticion;
 import models.Rol;
@@ -18,6 +20,7 @@ import views.html.*;
 import views.html.admin.usuarios; 
 import views.html.peticiones.*; 
 import static play.libs.Json.toJson;
+
 
 @Transactional
 public class Application extends Controller {
@@ -39,10 +42,6 @@ public class Application extends Controller {
         		));
         
     }
-    
-    
-	
-
     
     @Security.Authenticated(Secured.class)
     public static Result crearUsuario() {
@@ -155,6 +154,33 @@ public class Application extends Controller {
     	return main(mainContent);
     }
     
+    @Security.Authenticated(Secured.class)
+    public static Result crearPeticion(){
+    	Form<Peticion>  form = Form.form(Peticion.class).bindFromRequest();
+
+    	Peticion peticion = new Peticion();
+    	peticion.creador = User.find.byId(session("username"));
+    	peticion.descripcion = form.data().get("descripcion");
+    	peticion.fechacreado = new Date();
+    	peticion.fase = "inical";
+    	peticion.prioridad =  form.data().get("prioridad");
+    	peticion.titulo = form.data().get("titulo");
+    	peticion.save();
+    	
+    	return ok();
+    }
+    
+    
+    @Security.Authenticated(Secured.class)
+    public static Result getPeticiones(){
+    	List<Peticion> peticiones = Ebean.find(Peticion.class)
+    			.where()
+    				.eq("creador", Ebean.find(User.class, session("username")))
+    			.findList();
+    		
+    	return ok(toJson(peticiones));
+    	
+    }
     
     
 

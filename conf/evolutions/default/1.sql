@@ -21,6 +21,7 @@ create table peticion (
   fechacreado               datetime,
   fechaasignado             datetime,
   fechacerrado              datetime,
+  prioridad                 varchar(255),
   constraint pk_peticion primary key (id))
 ;
 
