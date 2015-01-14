@@ -15,6 +15,7 @@ GET     /getUsers                   controllers.Application.getUsers()
 GET     /peticiones                 controllers.Application.peticiones()
 GET     /getPeticiones              controllers.Application.getPeticiones()
 POST    /crearPeticion              controllers.Application.crearPeticion()
+POST    /crearActualizacion              controllers.Application.crearActualizacion()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

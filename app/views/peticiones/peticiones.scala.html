@@ -1,13 +1,66 @@
 
+
+
 <script type="text/javascript">
 function getUsers()
 {
 	$.get( "@routes.Application.getUsers()", function showUsers1(data) { showUsers(data);} );		
 }
-
-var infoPeticiones;
+var curPeticion;
+var infoPeticiones = [];
 function getPeticiones(){
-	$.get( "@routes.Application.getPeticiones()", function (data) { infoPeticiones=data;mostrarTablaPeticiones();} );		
+	$.get( "@routes.Application.getPeticiones()", function (data) { 
+		for (d in data){
+			infoPeticiones[data[d].id] = data[d];	
+		}
+		mostrarTablaPeticiones();
+		if (curPeticion!=null)
+			editarPeticion(curPeticion);
+		} );		
+}
+
+function editarPeticion(peticion_id){
+	curPeticion = peticion_id;
+	var creador = (infoPeticiones[peticion_id].creador!=null)?
+			infoPeticiones[peticion_id].creador.nombre +" "+infoPeticiones[peticion_id].creador.apellido
+			:"";
+	var responsable = (infoPeticiones[peticion_id].responsable!=null)?
+			infoPeticiones[peticion_id].responsable.nombre+" "+infoPeticiones[peticion_id].responsable.apellido
+			:"";	
+	var creado = (infoPeticiones[peticion_id].fechacreado!=null)?
+			dateToString(new Date(infoPeticiones[peticion_id].fechacreado))
+			:"";
+	var asignado = (infoPeticiones[peticion_id].fechaasignado!=null)?
+			dateToString(new Date(infoPeticiones[peticion_id].fechaasignado))
+			:"";
+	var cerrado = (infoPeticiones[peticion_id].fechacerrado!=null)?
+			dateToString(new Date(infoPeticiones[peticion_id].fechacerrado))
+			:"";
+	$("#edit_titulo").val(infoPeticiones[peticion_id].titulo);
+	$("#edit_descripcion").val(infoPeticiones[peticion_id].descripcion);
+	$("#edit_prioridad").val(infoPeticiones[peticion_id].prioridad);
+	$("#edit_fase").val(infoPeticiones[peticion_id].fase);
+	$("#edit_creador").val(creador);
+	$("#edit_responsable").val(responsable);
+	$("#edit_creado").val(creado);
+	$("#edit_asignado").val(asignado);
+	$("#edit_cerrado").val(cerrado);
+	editarActualizaciones(peticion_id);
+	
+	//$("#edit_cerrado").val(infoPeticiones[peticion_id].cerrado);
+	
+}
+
+function editarActualizaciones(idPeticion){
+	$("#tablaActualizaciones>tbody").html("");
+	for (a in infoPeticiones[idPeticion].actualizaciones){
+		$("#tablaActualizaciones>tbody").append(
+				"<tr>"+
+				"<td>"+dateToString(new Date(infoPeticiones[idPeticion].actualizaciones[a].fecha))+"</td>"+
+				"<td>"+infoPeticiones[idPeticion].actualizaciones[a].texto+"</td>"+
+				"</tr>"
+				);
+	}
 }
 
 function crearPeticion()
@@ -19,6 +72,14 @@ function crearPeticion()
 		
 }, function a(){getPeticiones();} );
 }
+
+function crearActualizacion(){
+	$.post( "@routes.Application.crearActualizacion()",  { 
+		texto:$("#edit_nuevaact").val(),
+		peticion_id:curPeticion
+		
+	}, function a(){getPeticiones();} );
+}
 function mostrarTablaPeticiones(){
 	
 	$("#tablaPeticiones>tbody").html("");
@@ -28,7 +89,8 @@ function mostrarTablaPeticiones(){
 		var creador = (infoPeticiones[p].creador!=null)?infoPeticiones[p].creador.nombre+" "+infoPeticiones[p].creador.apellido:"";
 		var responsable=(infoPeticiones[p].responsable!=null)?infoPeticiones[p].responsable.nombre+" "+infoPeticiones[p].responsable.apellido:"N-A";
 		var fechaCreado = new Date(infoPeticiones[p].fechacreado);
-		var fechaString = fechaCreado.getDate()+"/"+(fechaCreado.getMonth()+1)+"/"+fechaCreado.getFullYear();
+		//var fechaString = fechaCreado.getDate()+"/"+(fechaCreado.getMonth()+1)+"/"+fechaCreado.getFullYear();
+		var fechaString = dateToString(fechaCreado);
 		
 		$("#tablaPeticiones>tbody").append(
 				"<tr id=\"row"+infoPeticiones[p].id+"\">"+
@@ -37,6 +99,7 @@ function mostrarTablaPeticiones(){
 				"<td>"+responsable+"</td>"+
 				"<td>"+infoPeticiones[p].prioridad+"</td>"+
 				"<td>"+fechaString+"</td>"+
+				"<td><button class=\"btn btn-default btn-sm\" onclick=\"editarPeticion('"+infoPeticiones[p].id+"')\" type='button'><span class=\"glyphicon glyphicon-eye-open\" aria-hidden=\"true\"></span></button>"+
 				"</tr>"
 			);	
 	}
@@ -91,14 +154,111 @@ $( document ).ready(function() {
 
 </div><!-- newUserForm -->
 
+<div id="verPeticionForm" class="well bs-component" >
+<legend>Peticion</legend>	
+<div class="row">
+	<div class="col-xs-8">
+		<div class="form-group">
+		<label for="titulo">Titulo:</label>
+      	<input type="text" class="form-control" id="edit_titulo" placeholder="">
+      	</div>
+	</div>
+	<div class="col-xs-4">
+		<div class="form-group">
+	      <label for="prioridad">Prioridad:</label>
+	      <select type="text" class="form-control" id="edit_prioridad">
+	      @models.Listas.prioridad.entrySet().map { prioridad =>
+	      	<option value="@prioridad.getKey()"> @prioridad.getValue() </option>
+	      }
+	      </select>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="form-group">
+		<label for="descripcion">Descripcion:</label>
+      	<textarea class="form-control" id="edit_descripcion" placeholder=""></textarea>
+      	</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-4">
+		<div class="form-group">
+		<label for="fase">Fase:</label>
+	      <select type="text" class="form-control" id="edit_fase">
+	      @models.Listas.fase.entrySet().map { fase =>
+	      	<option value="@fase.getKey()"> @fase.getValue() </option>
+	      }
+	      </select>
+      	</div>
+	</div>
+	<div class="col-xs-4">
+		<div class="form-group">
+		<label for="creadopor">Creado por:</label>
+      	<input type="text" class="form-control" id="edit_creador" placeholder=""/>
+      	</div>
+	</div>
+	<div class="col-xs-4">
+		<div class="form-group">
+		<label for="responsable">Responsable:</label>
+      	<input type="text" class="form-control" id="edit_responsable" placeholder=""/>
+      	</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-4">
+		<div class="form-group">
+		<label for="creado">Creado:</label>
+      	<input type="text" class="form-control" id="edit_creado" placeholder=""/>
+      	</div>
+	</div>
+	<div class="col-xs-4">
+		<div class="form-group">
+		<label for="asignado">Asignado:</label>
+      	<input type="text" class="form-control" id="edit_asignado" placeholder=""/>
+      	</div>
+	</div>
+	<div class="col-xs-4">
+		<div class="form-group">
+		<label for="cerrado">Cerrado:</label>
+      	<input type="text" class="form-control" id="edit_cerrado" placeholder=""/>
+      	</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-12">
+	<label for="actualizaciones">Actualizaciones:</label>
+	<table id="tablaActualizaciones" class="table table-striped table-hover" style="margin-bottom:0px;">
+	<tbody>
+	<tr>
+	<td>Fecha</td>
+	<td>Actualicacion</td>
+	</tr>
+	</tbody>
+	</table>
+	</div>
+	<div class="col-xs-11">
+	<input type="text" class="form-control" id="edit_nuevaact" placeholder="Nueva actualizacion..."/>
+	</div>
+	<div class="col-xs-1">
+	<button class="btn btn-primary" onclick="crearActualizacion()"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+	</div>
+</div>
+<div class="row" style="margin-top:25px;">
+ 	<button class="btn btn-default" onclick="toggleNewPeticionForm()"> Cancelar </button>
+   <button class="btn btn-primary" onclick="crearPeticion()"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Guardar </button>
+</div>
 
-<table class="table table-striped table-hover" id="tablaPeticiones">
+</div><!-- newUserForm -->
+<table  class="table table-striped table-hover"  id="tablaPeticiones">
 	<thead><tr>
 		<th>Titulo</th> 
 		<th>Creado por</th>
 		<th>Responsable</th>
 		<th>Prioridad</th>
 		<th>Ultima actualizacion</th>
+		<th> </th>
 	</tr></thead>
 	<tbody></tbody>
 </table>

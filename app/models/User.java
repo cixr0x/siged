@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import play.db.ebean.Model;
 import play.db.ebean.Model.Finder;
 
@@ -18,6 +20,7 @@ public class User extends Model {
 	public String username;
 	public String nombre;
 	public String apellido;
+	@JsonIgnore
 	public String password;
 	public String correo;
 	@ManyToMany

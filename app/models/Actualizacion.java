@@ -4,18 +4,21 @@ import java.util.Date;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import play.db.ebean.Model;
 
 @Entity
 public class Actualizacion extends Model {
 	@Id
-	Long id;
-	String texto;
+	public Long id;
+	public String texto;
 	@OneToMany
-	User usuario;
-	Date fecha;
+	public User usuario;
+	public Date fecha;
+	@JsonIgnore
 	@ManyToOne
-	Peticion peticion;
+	public Peticion peticion;
 	
 	
 }

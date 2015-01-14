@@ -17,7 +17,7 @@ public class Listas {
 		
 	}
 	
-	public static HashMap<String, String> fases(){
+	public static HashMap<String, String> fase(){
 		HashMap<String, String> lista = new HashMap<String, String>();
 		lista.put("inicial","Inicial");
 		lista.put("progreso","En Progreso");

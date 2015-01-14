@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.avaje.ebean.Ebean;
 
+import models.Actualizacion;
 import models.Peticion;
 import models.Rol;
 import models.User;
@@ -167,9 +168,33 @@ public class Application extends Controller {
     	peticion.titulo = form.data().get("titulo");
     	peticion.save();
     	
+    	Actualizacion act = new Actualizacion();
+    	act.fecha = new Date();
+    	act.texto = "La peticion fue creada";
+    	act.peticion = peticion;
+    	act.usuario = User.find.byId(session("username"));
+    	act.save();
+
+    	
+    	//
     	return ok();
     }
     
+    @Security.Authenticated(Secured.class)
+    public static Result crearActualizacion(){
+    	Form<Actualizacion>  form = Form.form(Actualizacion.class).bindFromRequest();
+
+    	Actualizacion act = new Actualizacion();
+    	act.fecha = new Date();
+    	act.texto = form.data().get("texto");
+    	act.peticion = Peticion.find.byId(Long.parseLong(form.data().get("peticion_id")));
+    	act.usuario = User.find.byId(session("username"));
+    	act.save();
+
+    	
+    	//
+    	return ok();
+    }
     
     @Security.Authenticated(Secured.class)
     public static Result getPeticiones(){

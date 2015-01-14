@@ -23,7 +23,7 @@ public class Peticion extends Model {
 	public Date fechacerrado;
 	public String prioridad;
 	@OneToMany
-	public List<Actualizacion> proceso;
+	public List<Actualizacion> actualizaciones;
 
 	public Peticion(String titulo, String descripcion, User usuario){
 		this.titulo=titulo;
